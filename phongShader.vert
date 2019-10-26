@@ -1,32 +1,27 @@
 // phongShader.vert
 #version 330
 
-uniform mat4 modelView;
+uniform mat4 model;
+uniform mat4 view;
 uniform mat4 projection;
-uniform vec4 lightPosition;
 
 in  vec3 in_Pos;
 in  vec3 in_Normal;
 out vec3 ex_N;
-out vec3 ex_V;
-out vec3 ex_L;
+out vec3 ex_Pos;
 
 in vec2 in_TexCoord;
 out vec2 ex_TexCoord;
 
 void main(void) {
 
-	vec4 vertexPosition = modelView * vec4(in_Pos,1.0);
-	ex_V = normalize(-vertexPosition).xyz;
+	ex_Pos = vec3(model * vec4(in_Pos,1.0));
 
-	mat3 normalmatrix = transpose(inverse(mat3(modelView)));
-	ex_N = normalize(normalmatrix * in_Normal);
-
-	// L - to light source from vertex
-	ex_L = normalize(lightPosition.xyz - vertexPosition.xyz);
+	mat3 normalmatrix = transpose(inverse(mat3(model)));
+	ex_N = normalmatrix * in_Normal;
 
 	ex_TexCoord = in_TexCoord;
 
-    gl_Position = projection * vertexPosition;
+    gl_Position = projection * view * vec4(ex_Pos,1.0);
 
 }

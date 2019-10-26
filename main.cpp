@@ -145,25 +145,26 @@ void draw(SDL_Window* window) {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glm::mat4 modelView(1.0);
-	drawStack.push(modelView);
+	glm::mat4 model(1.0);
+	drawStack.push(model);
 
 	at = moveForward(eye, r, 1.0f);
-	drawStack.top() = glm::lookAt(eye, at, up);
-
-	glm::vec3 vec = at-eye;
+	glm::mat4 view = glm::lookAt(eye, at, up);
+	rt3d::setUniformMatrix4fv(shaderProgram, "view", glm::value_ptr(view));
+	drawStack.top() = model * view;
 
 	glUseProgram(shaderProgram);
 	glm::vec4 tmp = drawStack.top() * lightPos;
 	light.position[0] = tmp.x;
 	light.position[1] = tmp.y;
 	light.position[2] = tmp.z;
-	rt3d::setLightPos(shaderProgram, glm::value_ptr(eye));
+	rt3d::setLightPos(shaderProgram, glm::value_ptr(tmp));
 
 
 
-	glUniform3f(glGetUniformLocation(shaderProgram, "lightDirection"), vec[0], vec[1], vec[2]);
-	cout << vec[0] << " " << vec[1] << " " << vec[2] << endl;
+	glUniform3f(glGetUniformLocation(shaderProgram, "lightDirection"), 0,-1,0);
+	glUniform3f(glGetUniformLocation(shaderProgram, "viewPos"), eye.x, eye.y, eye.z);
+	
 	glUniform1f(glGetUniformLocation(shaderProgram, "lightCutOff"), glm::cos(glm::radians(12.5f)));
 
 	glm::mat4 projection = glm::perspective(float(60.0f * DEG_TO_RADIAN), 800.0f / 600.0f, 1.0f, 150.0f);
@@ -173,7 +174,7 @@ void draw(SDL_Window* window) {
 	drawStack.push(drawStack.top());
 	drawStack.top() = glm::translate(drawStack.top(), glm::vec3(0.0f, -2.0f, -3.0f));
 	drawStack.top() = glm::scale(drawStack.top(), glm::vec3(3.0f, 0.2f, 5.0f));
-	rt3d::setUniformMatrix4fv(shaderProgram, "modelView", glm::value_ptr(drawStack.top()));
+	rt3d::setUniformMatrix4fv(shaderProgram, "model", glm::value_ptr(drawStack.top()));
 	rt3d::setMaterial(shaderProgram, materialMap);
 	rt3d::drawIndexedMesh(meshObjects, meshIndexCount, GL_TRIANGLES);
 	drawStack.pop();
@@ -181,7 +182,7 @@ void draw(SDL_Window* window) {
 	drawStack.push(drawStack.top());
 	drawStack.top() = glm::translate(drawStack.top(), glm::vec3(lightPos[0], lightPos[1], lightPos[2]));
 	drawStack.top() = glm::scale(drawStack.top(), glm::vec3(1.0f, 1.0f, 1.0f));
-	rt3d::setUniformMatrix4fv(shaderProgram, "modelView", glm::value_ptr(drawStack.top()));
+	rt3d::setUniformMatrix4fv(shaderProgram, "model", glm::value_ptr(drawStack.top()));
 	rt3d::setMaterial(shaderProgram, materialMap);
 	rt3d::drawIndexedMesh(meshObjects, meshIndexCount, GL_TRIANGLES);
 	drawStack.pop();
@@ -190,7 +191,7 @@ void draw(SDL_Window* window) {
 	drawStack.push(drawStack.top());
 	drawStack.top() = glm::translate(drawStack.top(), glm::vec3(0.0f, 7.0f, -20.0f));
 	drawStack.top() = glm::scale(drawStack.top(), glm::vec3(20.0f, 10.0f, 3.0f));
-	rt3d::setUniformMatrix4fv(shaderProgram, "modelView", glm::value_ptr(drawStack.top()));
+	rt3d::setUniformMatrix4fv(shaderProgram, "model", glm::value_ptr(drawStack.top()));
 	rt3d::setMaterial(shaderProgram, materialMap);
 	rt3d::drawIndexedMesh(meshObjects, meshIndexCount, GL_TRIANGLES);
 	drawStack.pop();
