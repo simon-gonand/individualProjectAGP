@@ -19,7 +19,6 @@ struct materialStruct {
 uniform lightStruct light;
 uniform vec4 lightPosition;
 uniform materialStruct material;
-uniform sampler2D textureUnit0;
 uniform vec3 viewPos;
 
 in vec2 ex_TexCoord;
@@ -41,5 +40,5 @@ void main (void){
 	vec4 specularI = light.specular * material.specular;
 	specularI = specularI * pow(max(dot(viewDir, R),0.0), material.shininess);
 
-	out_Color = (ambientI + diffuseI + specularI) * texture(textureUnit0, ex_TexCoord);
+	out_Color = (ambientI + diffuseI + specularI);
 }

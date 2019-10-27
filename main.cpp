@@ -19,6 +19,7 @@ GLuint texture;
 
 //shaders
 GLuint shaderProgram;
+GLuint spotlightProgram;
 
 GLfloat r = 0.0f;
 
@@ -102,6 +103,9 @@ void init() {
 	shaderProgram = rt3d::initShaders("src/phongShader.vert", "src/phongShader.frag");
 	rt3d::setLight(shaderProgram, light);
 
+	spotlightProgram = rt3d::initShaders("src/spotlightPhongShader.vert", "src/spotlightPhongShader.frag");
+	rt3d::setLight(spotlightProgram, light);
+
 	vector<GLfloat> verts;
 	vector<GLfloat> norms;
 	vector<GLfloat> tex_coords;
@@ -151,23 +155,44 @@ void draw(SDL_Window* window) {
 	at = moveForward(eye, r, 1.0f);
 	glm::mat4 view = glm::lookAt(eye, at, up);
 	rt3d::setUniformMatrix4fv(shaderProgram, "view", glm::value_ptr(view));
-	drawStack.top() = model * view;
 
-	glUseProgram(shaderProgram);
+	glm::mat4 projection = glm::perspective(float(60.0f * DEG_TO_RADIAN), 800.0f / 600.0f, 1.0f, 150.0f);
+
 	glm::vec4 tmp = drawStack.top() * lightPos;
 	light.position[0] = tmp.x;
 	light.position[1] = tmp.y;
 	light.position[2] = tmp.z;
+
+	glUseProgram(spotlightProgram);
+
+	rt3d::setUniformMatrix4fv(spotlightProgram, "view", glm::value_ptr(view));
+
+	rt3d::setUniformMatrix4fv(spotlightProgram, "projection", glm::value_ptr(projection));
+
+	glm::vec4 tmpSpotlightPos = drawStack.top() * glm::vec4(0.0f, -2.0f, -3.0f, 1.0f);
+	light.position[0] = tmpSpotlightPos.x;
+	light.position[1] = tmpSpotlightPos.y;
+	light.position[2] = tmpSpotlightPos.z;
+	rt3d::setLightPos(spotlightProgram, glm::value_ptr(tmpSpotlightPos));
+
+	glUniform3fv(glGetUniformLocation(spotlightProgram, "generalLightPos"), 1, glm::value_ptr(tmp));
+	glUniform3f(glGetUniformLocation(spotlightProgram, "viewPos"), eye.x, eye.y, eye.z);
+
+	glUniform1f(glGetUniformLocation(spotlightProgram, "lightCutOff"), glm::cos(glm::radians(12.5f)));
+
+	glBindTexture(GL_TEXTURE_2D, texture);
+	drawStack.push(drawStack.top());
+	drawStack.top() = glm::translate(drawStack.top(), glm::vec3(0.0f, 7.0f, -20.0f));
+	drawStack.top() = glm::scale(drawStack.top(), glm::vec3(20.0f, 10.0f, 3.0f));
+	rt3d::setUniformMatrix4fv(spotlightProgram, "model", glm::value_ptr(drawStack.top()));
+	rt3d::setMaterial(spotlightProgram, materialMap);
+	rt3d::drawIndexedMesh(meshObjects, meshIndexCount, GL_TRIANGLES);
+	drawStack.pop();
+
+	glUseProgram(shaderProgram);
 	rt3d::setLightPos(shaderProgram, glm::value_ptr(tmp));
 
-
-
-	glUniform3f(glGetUniformLocation(shaderProgram, "lightDirection"), 0,-1,0);
-	glUniform3f(glGetUniformLocation(shaderProgram, "viewPos"), eye.x, eye.y, eye.z);
-	
-	glUniform1f(glGetUniformLocation(shaderProgram, "lightCutOff"), glm::cos(glm::radians(12.5f)));
-
-	glm::mat4 projection = glm::perspective(float(60.0f * DEG_TO_RADIAN), 800.0f / 600.0f, 1.0f, 150.0f);
+	glUniform3fv(glGetUniformLocation(shaderProgram, "viewPos"), 1, glm::value_ptr(eye));
 
 	rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(projection));
 
@@ -182,15 +207,6 @@ void draw(SDL_Window* window) {
 	drawStack.push(drawStack.top());
 	drawStack.top() = glm::translate(drawStack.top(), glm::vec3(lightPos[0], lightPos[1], lightPos[2]));
 	drawStack.top() = glm::scale(drawStack.top(), glm::vec3(1.0f, 1.0f, 1.0f));
-	rt3d::setUniformMatrix4fv(shaderProgram, "model", glm::value_ptr(drawStack.top()));
-	rt3d::setMaterial(shaderProgram, materialMap);
-	rt3d::drawIndexedMesh(meshObjects, meshIndexCount, GL_TRIANGLES);
-	drawStack.pop();
-
-	glBindTexture(GL_TEXTURE_2D, texture);
-	drawStack.push(drawStack.top());
-	drawStack.top() = glm::translate(drawStack.top(), glm::vec3(0.0f, 7.0f, -20.0f));
-	drawStack.top() = glm::scale(drawStack.top(), glm::vec3(20.0f, 10.0f, 3.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "model", glm::value_ptr(drawStack.top()));
 	rt3d::setMaterial(shaderProgram, materialMap);
 	rt3d::drawIndexedMesh(meshObjects, meshIndexCount, GL_TRIANGLES);

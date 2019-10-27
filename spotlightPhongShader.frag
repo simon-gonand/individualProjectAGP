@@ -19,7 +19,6 @@ struct materialStruct {
 };
 
 uniform lightStruct light;
-uniform vec3 lightDirection;
 uniform vec4 lightPosition;
 uniform float lightCutOff;
 uniform materialStruct material;
@@ -29,11 +28,13 @@ uniform vec3 viewPos;
 in vec2 ex_TexCoord;
 
 in vec3 ex_N;
+in vec3 ex_I;
 in vec3 ex_Pos;
 
 layout(location = 0) out vec4 out_Color;
 
 void main (void){
+	vec3 lightDirection = reflect(ex_I, ex_N);
 	vec3 ex_L = normalize(lightPosition.xyz - ex_Pos);
 	float theta = dot(-ex_L, normalize(lightDirection));
 
@@ -49,11 +50,8 @@ void main (void){
 		specularI = specularI * pow(max(dot(viewDir, R),0.0), material.shininess);
 
 		out_Color = (ambientI + diffuseI + specularI) * texture(textureUnit0, ex_TexCoord);
-		//out_Color = vec4(1.0, 1.0, 1.0, 1.0);
 	}
 	else
 		out_Color = vec4(light.ambient.xyz * vec3(texture (textureUnit0, ex_TexCoord)), 1.0);
-
-	//out_Color = vec4(theta,theta,theta,1.0);
-
+	//out_Color= vec4(lightDirection, 1.0);
 }
