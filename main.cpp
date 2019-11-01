@@ -36,6 +36,7 @@ rt3d::lightStruct light = {
 };
 glm::vec4 lightPos(0.0f, 5.0f, -3.0f, 1.0f);
 
+// material
 rt3d::materialStruct materialMap = {
 	{0.9f, 0.9f, 0.9f, 1.0f},
 	{0.95f, 0.95f, 0.95f, 1.0f},
@@ -44,6 +45,8 @@ rt3d::materialStruct materialMap = {
 };
 
 stack<glm::mat4> drawStack;
+
+glm::vec3 rotationPlane(0.0f, 0.0f, 0.0f);
 
 SDL_Window* setupSDL(SDL_GLContext& context) {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -137,6 +140,23 @@ void movement() {
 	if (keys[SDL_SCANCODE_COMMA]) r -= 0.5f;
 	if (keys[SDL_SCANCODE_PERIOD]) r += 0.5f;
 
+	if (keys[SDL_SCANCODE_UP]) {
+		if (rotationPlane.x <= 1)
+			rotationPlane.x += 0.1;
+	}
+	if (keys[SDL_SCANCODE_RIGHT]) {
+		if (rotationPlane.z <= 1)
+			rotationPlane.z += 0.1;
+	}
+	if (keys[SDL_SCANCODE_LEFT]) {
+		if (rotationPlane.z <= -1)
+			rotationPlane.z -= 0.1;
+	}
+	if (keys[SDL_SCANCODE_DOWN]) {
+		if (rotationPlane.x <= -1)
+			rotationPlane.z -= 0.1;
+	}
+
 	if (keys[SDL_SCANCODE_I]) lightPos[2] -= 0.1;
 	if (keys[SDL_SCANCODE_J]) lightPos[0] -= 0.1;
 	if (keys[SDL_SCANCODE_K]) lightPos[2] += 0.1;
@@ -177,6 +197,8 @@ void draw(SDL_Window* window) {
 
 	glUniform3fv(glGetUniformLocation(spotlightProgram, "generalLightPos"), 1, glm::value_ptr(tmp));
 	glUniform3f(glGetUniformLocation(spotlightProgram, "viewPos"), eye.x, eye.y, eye.z);
+	glUniform3f(glGetUniformLocation(spotlightProgram, "reflectorPosition"), 0.0f, -2.0f, -3.0f);
+	glUniform3f(glGetUniformLocation(spotlightProgram, "reflectorNormal"), 0.0f, 0.0f, 1.0f);
 
 	glUniform1f(glGetUniformLocation(spotlightProgram, "lightCutOff"), glm::cos(glm::radians(12.5f)));
 
@@ -198,6 +220,7 @@ void draw(SDL_Window* window) {
 
 	drawStack.push(drawStack.top());
 	drawStack.top() = glm::translate(drawStack.top(), glm::vec3(0.0f, -2.0f, -3.0f));
+	//drawStack.top() = glm::rotate(drawStack.top(), float(0.0f * DEG_TO_RADIAN), rotationPlane);
 	drawStack.top() = glm::scale(drawStack.top(), glm::vec3(3.0f, 0.2f, 5.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "model", glm::value_ptr(drawStack.top()));
 	rt3d::setMaterial(shaderProgram, materialMap);
