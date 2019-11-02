@@ -25,7 +25,7 @@ void main(void) {
 	ex_NormalWorld = in_Normal * normalmatrix;
 
 	lightDirection = reflect(generalLightPos - reflectorPosition, reflectorNormal);
-	//lightDirection.x = -lightDirection.x;
+	lightDirection.x = -lightDirection.x;
 
 	ex_TexCoord = in_TexCoord;
 
