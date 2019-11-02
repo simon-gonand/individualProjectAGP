@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdlib.h>
 #include <stack>
 
 #include <SDL.h>
@@ -45,6 +46,7 @@ rt3d::materialStruct materialMap = {
 };
 
 stack<glm::mat4> drawStack;
+float theta=0.0f;
 
 glm::vec3 rotationPlane(0.0f, 0.0f, 0.0f);
 
@@ -141,21 +143,32 @@ void movement() {
 	if (keys[SDL_SCANCODE_PERIOD]) r += 0.5f;
 
 	if (keys[SDL_SCANCODE_UP]) {
-		if (rotationPlane.x <= 1)
-			rotationPlane.x += 0.1;
+		if (rotationPlane.x >= -1) {
+			rotationPlane.x -= 0.01;
+		}
 	}
 	if (keys[SDL_SCANCODE_RIGHT]) {
-		if (rotationPlane.z <= 1)
-			rotationPlane.z += 0.1;
+		if (rotationPlane.z >= -1) {
+			rotationPlane.z -= 0.01;
+		}
 	}
 	if (keys[SDL_SCANCODE_LEFT]) {
-		if (rotationPlane.z <= -1)
-			rotationPlane.z -= 0.1;
+		if (rotationPlane.z <= 1) {
+			rotationPlane.z += 0.01;
+		}
 	}
 	if (keys[SDL_SCANCODE_DOWN]) {
-		if (rotationPlane.x <= -1)
-			rotationPlane.z -= 0.1;
+		if (rotationPlane.x <= 1) {
+			rotationPlane.x += 0.01;
+		}
 	}
+	if (abs(rotationPlane.x) < abs(rotationPlane.z))
+		theta = abs(rotationPlane.z) * 45.0f;
+	else
+		theta = abs(rotationPlane.x) * 45.0f;
+	if (theta > 45.0f)
+		theta = 45.0f;
+	cout << rotationPlane.x << " " << rotationPlane.z << " "  << theta << endl;
 
 	if (keys[SDL_SCANCODE_I]) lightPos[2] -= 0.1;
 	if (keys[SDL_SCANCODE_J]) lightPos[0] -= 0.1;
@@ -220,7 +233,8 @@ void draw(SDL_Window* window) {
 
 	drawStack.push(drawStack.top());
 	drawStack.top() = glm::translate(drawStack.top(), glm::vec3(0.0f, -2.0f, -3.0f));
-	//drawStack.top() = glm::rotate(drawStack.top(), float(0.0f * DEG_TO_RADIAN), rotationPlane);
+	if (rotationPlane.x != 0 || rotationPlane.z != 0 )
+		drawStack.top() = glm::rotate(drawStack.top(), float(theta * DEG_TO_RADIAN), rotationPlane);
 	drawStack.top() = glm::scale(drawStack.top(), glm::vec3(3.0f, 0.2f, 5.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "model", glm::value_ptr(drawStack.top()));
 	rt3d::setMaterial(shaderProgram, materialMap);
