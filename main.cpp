@@ -49,6 +49,7 @@ stack<glm::mat4> drawStack;
 float theta=0.0f;
 
 glm::vec3 rotationPlane(0.0f, 0.0f, 0.0f);
+glm::vec3 reflectorNormal(0.0f, 0.0f, 0.0f);
 
 SDL_Window* setupSDL(SDL_GLContext& context) {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -162,13 +163,22 @@ void movement() {
 			rotationPlane.x += 0.01;
 		}
 	}
+	reflectorNormal.z = ((abs(rotationPlane.x) * 45.0f) * 0.5) / 90;
+	if (rotationPlane.x < 0)
+		reflectorNormal.z += 1;
+	else
+		reflectorNormal.z -= 1;
+
+	reflectorNormal.x = ((rotationPlane.z * 45.0f) * 0.5) / 90;
+	if (rotationPlane.x < 0)
+		reflectorNormal.x = -reflectorNormal.x;
+
 	if (abs(rotationPlane.x) < abs(rotationPlane.z))
 		theta = abs(rotationPlane.z) * 45.0f;
 	else
 		theta = abs(rotationPlane.x) * 45.0f;
 	if (theta > 45.0f)
 		theta = 45.0f;
-	cout << rotationPlane.x << " " << rotationPlane.z << " "  << theta << endl;
 
 	if (keys[SDL_SCANCODE_I]) lightPos[2] -= 0.1;
 	if (keys[SDL_SCANCODE_J]) lightPos[0] -= 0.1;
@@ -211,7 +221,7 @@ void draw(SDL_Window* window) {
 	glUniform3fv(glGetUniformLocation(spotlightProgram, "generalLightPos"), 1, glm::value_ptr(tmp));
 	glUniform3f(glGetUniformLocation(spotlightProgram, "viewPos"), eye.x, eye.y, eye.z);
 	glUniform3f(glGetUniformLocation(spotlightProgram, "reflectorPosition"), 0.0f, -2.0f, -3.0f);
-	glUniform3f(glGetUniformLocation(spotlightProgram, "reflectorNormal"), 0.0f, 0.0f, 1.0f);
+	glUniform3fv(glGetUniformLocation(spotlightProgram, "reflectorNormal"), 1, glm::value_ptr(reflectorNormal));
 
 	glUniform1f(glGetUniformLocation(spotlightProgram, "lightCutOff"), glm::cos(glm::radians(12.5f)));
 
