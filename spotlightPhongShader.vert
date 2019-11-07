@@ -1,4 +1,4 @@
-// phongShader.vert
+// spotlightPhongShader.vert
 #version 330
 
 uniform mat4 model;
