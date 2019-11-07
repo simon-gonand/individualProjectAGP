@@ -1,4 +1,4 @@
-// phongShader.frag
+// spotlightPhongShader.frag
 #version 330
 
 precision highp float;
@@ -26,7 +26,6 @@ uniform sampler2D textureUnit0;
 uniform vec3 viewPos;
 
 in vec2 ex_TexCoord;
-
 in vec3 ex_NormalWorld;
 in vec3 ex_Pos;
 in vec3 lightDirection;
@@ -34,16 +33,16 @@ in vec3 lightDirection;
 layout(location = 0) out vec4 out_Color;
 
 void main (void){
-	vec3 ex_L = normalize(lightPosition.xyz - ex_Pos);
-	float theta = dot(-ex_L, normalize(lightDirection));
+	vec3 LightDir = normalize(ex_Pos - lightPosition.xyz);
+	float theta = dot(LightDir, normalize(lightDirection));
 
 	if (theta > lightCutOff){
 		vec4 ambientI = light.ambient * material.ambient;
 		vec4 diffuseI = light.diffuse * material.diffuse;
-		diffuseI = diffuseI * max(dot(normalize(ex_NormalWorld),normalize(ex_L)),0);
+		diffuseI = diffuseI * max(dot(normalize(ex_NormalWorld),normalize(-LightDir)),0);
 
 		vec3 viewDir = normalize(viewPos - ex_Pos);
-		vec3 R = reflect(-ex_L,ex_NormalWorld);
+		vec3 R = reflect(LightDir,ex_NormalWorld);
 
 		vec4 specularI = light.specular * material.specular;
 		specularI = specularI * pow(max(dot(viewDir, R),0.0), material.shininess);
