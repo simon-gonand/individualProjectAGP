@@ -7,8 +7,6 @@ struct lightStruct {
 	vec4 ambient;
 	vec4 diffuse;
 	vec4 specular;
-	vec3 direction;
-	float cutOff;
 };
 
 struct materialStruct {
