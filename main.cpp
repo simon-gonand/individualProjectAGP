@@ -33,9 +33,9 @@ rt3d::lightStruct light = {
 	{0.4f, 0.4f, 0.4f, 1.0f}, // ambient
 	{1.0f, 1.0f, 1.0f, 1.0f}, // diffuse
 	{1.0f, 1.0f, 1.0f, 1.0f}, // specular
-	{-5.0f, 2.0f, 2.0f, 1.0f}, // position
+	{0.0f, 5.0f, 0.0f, 1.0f}, // position
 };
-glm::vec4 lightPos(0.0f, 5.0f, -3.0f, 1.0f);
+glm::vec4 lightPos(0.0f, 5.0f, 14.0f, 1.0f);
 
 // material
 rt3d::materialStruct materialMap = {
@@ -46,7 +46,7 @@ rt3d::materialStruct materialMap = {
 };
 
 stack<glm::mat4> drawStack;
-float theta=0.0f;
+float rotationAngle =0.0f;
 
 glm::vec3 rotationPlane(0.0f, 0.0f, 0.0f);
 glm::vec3 reflectorNormal(0.0f, 0.0f, 0.0f);
@@ -163,7 +163,7 @@ void movement() {
 			rotationPlane.x += 0.01;
 		}
 	}
-	reflectorNormal.z = ((abs(rotationPlane.x) * 45.0f) * 0.5) / 90;
+	reflectorNormal.z = ((abs(rotationPlane.x) * 45.0f) * 1) / 180;
 	if (rotationPlane.x < 0)
 		reflectorNormal.z += 1;
 	else
@@ -174,11 +174,11 @@ void movement() {
 		reflectorNormal.x = -reflectorNormal.x;
 
 	if (abs(rotationPlane.x) < abs(rotationPlane.z))
-		theta = abs(rotationPlane.z) * 45.0f;
+		rotationAngle = abs(rotationPlane.z) * 45.0f;
 	else
-		theta = abs(rotationPlane.x) * 45.0f;
-	if (theta > 45.0f)
-		theta = 45.0f;
+		rotationAngle = abs(rotationPlane.x) * 45.0f;
+	if (rotationAngle > 45.0f)
+		rotationAngle = 45.0f;
 
 	if (keys[SDL_SCANCODE_I]) lightPos[2] -= 0.1;
 	if (keys[SDL_SCANCODE_J]) lightPos[0] -= 0.1;
@@ -244,7 +244,7 @@ void draw(SDL_Window* window) {
 	drawStack.push(drawStack.top());
 	drawStack.top() = glm::translate(drawStack.top(), glm::vec3(0.0f, -2.0f, -3.0f));
 	if (rotationPlane.x != 0 || rotationPlane.z != 0 )
-		drawStack.top() = glm::rotate(drawStack.top(), float(theta * DEG_TO_RADIAN), rotationPlane);
+		drawStack.top() = glm::rotate(drawStack.top(), float(rotationAngle * DEG_TO_RADIAN), rotationPlane);
 	drawStack.top() = glm::scale(drawStack.top(), glm::vec3(3.0f, 0.2f, 5.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "model", glm::value_ptr(drawStack.top()));
 	rt3d::setMaterial(shaderProgram, materialMap);
