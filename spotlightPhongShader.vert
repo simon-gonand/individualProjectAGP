@@ -11,7 +11,6 @@ uniform vec3 reflectorBluePosition;
 uniform vec3 generalYellowLightPos;
 uniform vec3 reflectorYellowPosition;
 
-
 uniform vec3 reflectorBlueNormal;
 uniform vec3 reflectorYellowNormal;
 
