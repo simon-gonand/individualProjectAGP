@@ -33,7 +33,7 @@ rt3d::lightStruct lightBlue = {
 	{0.3f, 0.3f, 0.3f, 1.0f}, // ambient
 	{0.0f, 0.0f, 1.0f, 1.0f}, // diffuse
 	{0.0f, 0.0f, 1.0f, 1.0f}, // specular
-	{-6.0f, 5.0f, 14.0f, 1.0f}, // position
+	{-6.0f, 3.0f, 14.0f, 1.0f}, // position
 };
 glm::vec4 lightBluePos(6.0f, 5.0f, 14.0f, 1.0f);
 
@@ -44,7 +44,7 @@ rt3d::lightStruct lightYellow = {
 	{1.0f, 1.0f, 0.0f, 1.0f}, // specular
 	{6.0f, 5.0f, 14.0f, 1.0f}, // position
 };
-glm::vec4 lightYellowPos(-6.0f, 5.0f, 14.0f, 1.0f);
+glm::vec4 lightYellowPos(-6.0f, 3.0f, 14.0f, 1.0f);
 
 // material
 rt3d::materialStruct materialMap = {
