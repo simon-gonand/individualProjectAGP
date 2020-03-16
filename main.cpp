@@ -285,8 +285,8 @@ void draw(SDL_Window* window) {
 	glUniform3f(glGetUniformLocation(spotlightProgram, "viewPos"), eye.x, eye.y, eye.z);
 	glUniform3f(glGetUniformLocation(spotlightProgram, "reflectorPositionBlue"), -8.0f, -2.0f, -3.0f);
 	glUniform3f(glGetUniformLocation(spotlightProgram, "reflectorPositionYellow"), 8.0f, -2.0f, -3.0f);
-	glUniform3fv(glGetUniformLocation(spotlightProgram, "reflectorNormal"), 1, glm::value_ptr(reflectorBlueNormal));
-	glUniform3fv(glGetUniformLocation(spotlightProgram, "reflectorNormal"), 1, glm::value_ptr(reflectorYellowNormal));
+	glUniform3fv(glGetUniformLocation(spotlightProgram, "reflectorBlueNormal"), 1, glm::value_ptr(reflectorBlueNormal));
+	glUniform3fv(glGetUniformLocation(spotlightProgram, "reflectorYellowNormal"), 1, glm::value_ptr(reflectorYellowNormal));
 
 	glUniform1f(glGetUniformLocation(spotlightProgram, "lightCutOff"), glm::cos(glm::radians(5.5f)));
 
